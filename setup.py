@@ -12,5 +12,7 @@ setup(
     ],
     tests_require=[
         'pytest',
+        'flask_cors',
+        'faker',
     ],
 )
