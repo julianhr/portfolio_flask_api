@@ -1,5 +1,3 @@
-import os
-import random
 from faker import Faker
 from flask import Blueprint, jsonify, request
 
@@ -8,6 +6,7 @@ from utils import sanitize_param_num
 
 bp = Blueprint('infinite_scroller', __name__, url_prefix='/infinite-scroller')
 faker = Faker()
+
 
 @bp.route('/', methods=['GET'])
 def index():

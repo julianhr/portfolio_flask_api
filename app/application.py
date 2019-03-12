@@ -31,7 +31,7 @@ def hello_world():
 
 
 # endpoint imports
-from .infinite_scroller import bp as infinite_scroll_bp
+from app.infinite_scroller import bp as infinite_scroll_bp
 app.register_blueprint(infinite_scroll_bp)
 
 
