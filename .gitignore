@@ -1,0 +1,16 @@
+# directories
+__pycache__/
+.pytest_cache/
+*.egg-info/
+build/
+dist/
+htmlcov/
+instance/
+venv/
+
+# files
+.coverage
+.DS_Store
+.env
+*.pyc
+test.py
