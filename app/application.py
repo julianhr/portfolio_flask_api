@@ -11,9 +11,9 @@ app = application
 
 # CORS
 if app.config.get('ENV') == 'production':
-    origin = '*'
+    origin = r'https?:\/\/www\.cimarron\.me'
 else:
-    origin = 'http://localhost:5000'
+    origin = 'http://localhost:3000'
 
 resources = {
     '*': {
