@@ -11,8 +11,8 @@ faker = Faker()
 @bp.route('/', methods=['GET'])
 def index():
     data = []
-    n_paragraphs = sanitize_param_num(request, 'paragraphs', 3, 1, 10)
-    n_entries = sanitize_param_num(request, 'entries', 10, 1, 100)
+    n_paragraphs = sanitize_param_num(request, 'paragraphs', 3, 1, 5)
+    n_entries = sanitize_param_num(request, 'entries', 10, 1, 10)
 
     for _ in range(n_entries):
         gen_desc_sentence = lambda: faker.sentence(nb_words=15, variable_nb_words=True)
@@ -20,7 +20,7 @@ def index():
 
         data.append({
             'title': faker.sentence(nb_words=6, variable_nb_words=True)[:-1],
-            'image_url': f'https://picsum.photos/200/120/?random',
+            'image_url': f'https://picsum.photos/180/100/?random',
             'description': description,
         })
 
