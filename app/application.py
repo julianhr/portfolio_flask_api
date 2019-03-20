@@ -11,9 +11,9 @@ app = application
 
 # CORS
 if app.config.get('ENV') == 'production':
-    origin = r'https://www.cimarron.me'
+    origin = r'https://(www\.cimarron\.me|.+unruffled-stallman-9cfd92\.netlify\.com)'
 else:
-    origin = 'http://localhost:3000'
+    origin = r'http://localhost'
 
 resources = {
     '*': {
