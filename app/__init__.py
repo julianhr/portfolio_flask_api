@@ -11,7 +11,7 @@ app = Flask(__name__)
 if app.config.get('ENV') == 'production':
     origin = r'https://(www\.cimarron\.me|.+unruffled-stallman-9cfd92\.netlify\.com)'
 else:
-    origin = r'http://localhost'
+    origin = r'http://localhost.?'
 
 resources = {
     '*': {
