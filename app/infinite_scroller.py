@@ -1,7 +1,7 @@
 from faker import Faker
 from flask import Blueprint, jsonify, request
 
-from utils import sanitize_param_num
+from utils import clamp_param_num
 
 
 bp = Blueprint('infinite_scroller', __name__, url_prefix='/infinite-scroller')
@@ -11,8 +11,8 @@ faker = Faker()
 @bp.route('/', methods=['GET'])
 def index():
     data = []
-    n_paragraphs = sanitize_param_num(request, 'paragraphs', 3, 1, 5)
-    n_entries = sanitize_param_num(request, 'entries', 10, 1, 10)
+    n_paragraphs = clamp_param_num(request, 'paragraphs', 3, 1, 5)
+    n_entries = clamp_param_num(request, 'entries', 10, 1, 10)
     themes = 'nature ice sunset people pets water volcano desert flowers'.split()
 
     for i in range(n_entries):
