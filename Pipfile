@@ -4,10 +4,14 @@ url = "https://pypi.org/simple"
 verify_ssl = true
 
 [packages]
-pytest = "*"
 Flask = "~=1.0"
 flask-cors = "*"
 faker = "*"
 
 [requires]
 python_version = "3.6"
+
+[dev-packages]
+pytest = "*"
+pytest-cov = "*"
+pytest-mock = "*"
