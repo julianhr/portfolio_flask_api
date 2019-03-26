@@ -1,10 +1,11 @@
 import re
+import os
+import pytest
 
 
 class TestCorsPolicy:
     host_dev = 'http://localhost'
     host_prod = 'https://www.cimarron.me'
-
 
     def test_cors_dev_re(self, client):
         from app.application import cors_origin_dev_re
@@ -30,10 +31,22 @@ class TestCorsPolicy:
 
 
     def test_dev_request(self, client):
+        if client.application.config.get('ENV') == 'production':
+            pytest.skip()
+
         res = client.get('/', headers={ 'Origin': self.host_dev })
         cors_header = 'Access-Control-Allow-Origin'
         assert res.headers.has_key(cors_header)
         assert res.headers[cors_header] == self.host_dev
+
+    def test_prod_request(self, client):
+        if client.application.config.get('ENV') != 'production':
+            pytest.skip()
+
+        res = client.get('/', headers={ 'Origin': self.host_prod })
+        cors_header = 'Access-Control-Allow-Origin'
+        assert res.headers.has_key(cors_header)
+        assert res.headers[cors_header] == self.host_prod
 
 
 def test_get_index(client):
