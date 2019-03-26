@@ -8,11 +8,15 @@ from app.flaskrun import flaskrun
 app = Flask(__name__)
 application = app
 
+
 # CORS
+cors_origin_prod_re = r'https://(www\.cimarron\.me|.+unruffled-stallman-9cfd92\.netlify\.com)'
+cors_origin_dev_re = r'http://localhost.?'
+
 if app.config.get('ENV') == 'production':
-    origin = r'https://(www\.cimarron\.me|.+unruffled-stallman-9cfd92\.netlify\.com)'
+    origin = cors_origin_prod_re
 else:
-    origin = r'http://localhost.?'
+    origin = cors_origin_dev_re
 
 resources = {
     '*': {
@@ -20,7 +24,7 @@ resources = {
     }
 }
 
-CORS(app, origins=[origin])
+cors = CORS(app, origins=[origin])
 
 
 # Test endpoints
