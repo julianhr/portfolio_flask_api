@@ -1,6 +1,9 @@
 language: python
 python: 3.6
-before_install:
-  - sudo mv requirements_ci.txt requirements.txt
+install:
+  - pip install -r requirements.txt
+  - pip install -r requirements-dev.txt
+env:
+  - FLASK_APP=production
 script:
   - pytest -s
