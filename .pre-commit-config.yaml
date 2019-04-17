@@ -5,5 +5,5 @@ repos:
       name: pytest
       entry: pipenv run pytest --cov -s
       language: script
-      types: [python]
+      types: [shell]
       stages: [push]
