@@ -32,7 +32,7 @@ class TestSesSendEmailKwargs:
         assert resp['Source'] == env['CONTACT_EMAIL_FROM']
 
 
-    def test_reply_to_address(self, kwargs):
+    def test_reply_to_address(self, kwargs, env):
         resp = ses_send_email_kwargs(**kwargs)
         assert resp['ReplyToAddresses'] == [kwargs['reply_to']]
 

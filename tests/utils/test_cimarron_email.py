@@ -15,6 +15,11 @@ fake = Faker()
 
 class TestVerifyToken:
 
+    def setup_method(self):
+        from unittest.mock import MagicMock
+        mock = MagicMock()
+        mock.patch('os.environ', return_value=dict(SECRET_KEY='testing_key'))
+
     @freeze_time('2019-11-11 00:00')
     def test_verifies_valid_token(self):
         expires_in = 60 * 10
@@ -174,8 +179,7 @@ class TestEmailSchema:
 
 
     def test_message_validity(self, json_payload):
-        fake = Faker()
-        json_payload['message'] = fake.sentence(nb_words=10)
+        json_payload['message'] = fake.sentence(nb_words=100)
         assert EmailSchema().load(json_payload)
 
         # too short
