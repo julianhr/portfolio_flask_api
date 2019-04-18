@@ -3,6 +3,8 @@ python: 3.6
 install:
   - pip install -r requirements.txt
   - pip install -r requirements-dev.txt
+  - mkdir -p ~/.aws
+  - curl https://gist.githubusercontent.com/julianhr/c9b40da93d701a4dfac22d5dd53794b6/raw/51948757794ccb580af59710ed281d9bc871bee3/aws_config > ~/.aws/config
 env:
   - FLASK_APP=production
 script:
