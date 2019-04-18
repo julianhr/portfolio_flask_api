@@ -1,0 +1,9 @@
+{
+    "python.unitTest.pyTestArgs": [
+        "tests"
+    ],
+    "python.unitTest.unittestEnabled": false,
+    "python.unitTest.nosetestsEnabled": false,
+    "python.unitTest.pyTestEnabled": true,
+    "python.pythonPath": "/Users/julian/.local/share/virtualenvs/flask_api-GrLjBCyt/bin/python"
+}
