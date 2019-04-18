@@ -15,11 +15,10 @@ class TestSesSendEmailKwargs:
             message='test message body',
         )
 
-    
+
     @pytest.fixture
     def env(self, monkeypatch):
         env = dict(
-            # SECRET_KEY='test_key',
             CONTACT_EMAIL_FROM='from@email.com',
             CONTACT_EMAIL_TO='to@email.com',
         )
