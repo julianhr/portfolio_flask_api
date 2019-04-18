@@ -6,9 +6,10 @@ from typing import List
 def ses_send_email_kwargs(reply_to, email_to, subject, message):
     return dict(
         Source=os.environ['CONTACT_EMAIL_FROM'],
-        ReplyToAddresses=reply_to,
+        ReplyToAddresses=[reply_to],
         Destination={
-            'ToAddresses': email_to,
+            'ToAddresses': [email_to],
+            # 'ToAddresses': ['success@simulator.amazonses.com'],
         },
         Message={
             'Subject': {

@@ -9,8 +9,8 @@ class TestSesSendEmailKwargs:
     @pytest.fixture
     def kwargs(self):
         return dict(
-            reply_to=['reply@test.com'],
-            email_to=['test@test.com'],
+            reply_to='reply@test.com',
+            email_to='test@test.com',
             subject='test subject line',
             message='test message body',
         )
@@ -32,15 +32,15 @@ class TestSesSendEmailKwargs:
         assert resp['Source'] == env['CONTACT_EMAIL_FROM']
 
 
-    def test_reply_to_address(self, kwargs):
+    def test_reply_to_address(self, kwargs, env):
         resp = ses_send_email_kwargs(**kwargs)
-        assert resp['ReplyToAddresses'] == kwargs['reply_to']
+        assert resp['ReplyToAddresses'] == [kwargs['reply_to']]
 
 
     def test_destination(self, kwargs, env):
         resp = ses_send_email_kwargs(**kwargs)
         expected_json = {
-            'ToAddresses': kwargs['email_to'],
+            'ToAddresses': [kwargs['email_to']]
         }
         assert resp['Destination'] == expected_json
 

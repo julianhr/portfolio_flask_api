@@ -51,7 +51,7 @@ class TestCorsPolicy:
 
 def test_get_index(client):
     resp = client.get('/')
-    json = resp.json
+    json = resp.get_json()
     assert resp.status_code == 200, 'should be 200'
     assert resp.headers['Content-Type'] == 'application/json'
     assert json['Output'] == 'Hello World'
@@ -59,7 +59,7 @@ def test_get_index(client):
 
 def test_post_index(client):
     resp = client.post('/')
-    data_json = resp.json
+    data_json = resp.get_json()
     assert resp.status_code == 200
     assert resp.headers['Content-Type'] == 'application/json'
     assert data_json['Output'] == 'Hello World'
