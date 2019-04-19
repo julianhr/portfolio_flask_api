@@ -1,6 +1,6 @@
 # directories
 __pycache__/
-.elasticbeanstalk/
+.elasticbeanstalk/*
 .pytest_cache/
 *.egg-info/
 build/
