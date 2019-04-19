@@ -4,11 +4,11 @@ from flask import Blueprint, jsonify, request
 from utils import clamp_param_num
 
 
-bp = Blueprint('infinite_scroller', __name__, url_prefix='/infinite-scroller')
+bp = Blueprint('infinite_scroller', __name__, url_prefix='/labs')
 faker = Faker()
 
 
-@bp.route('/', methods=['GET'])
+@bp.route('/infinite-scroller', methods=['GET'])
 def index():
     data = []
     n_paragraphs = clamp_param_num(request, 'paragraphs', 3, 1, 5)

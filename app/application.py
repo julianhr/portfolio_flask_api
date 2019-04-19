@@ -34,7 +34,7 @@ def hello_world():
 
 
 # endpoint imports
-from app.infinite_scroller import bp as infinite_scroller_bp
+from app.labs.infinite_scroller import bp as infinite_scroller_bp
 app.register_blueprint(infinite_scroller_bp)
 
 from app.cimarron import bp as cimarron_bp

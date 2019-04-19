@@ -6,7 +6,7 @@ from tests._common.api import CommonApiGet
 class TestIndex(CommonApiGet):
     @pytest.fixture
     def route(self):
-        return '/infinite-scroller'
+        return '/labs/infinite-scroller'
 
 
     def test_json_shape(self, client, route):
@@ -22,7 +22,7 @@ class TestIndex(CommonApiGet):
         paragraphs = 4
         query = dict(entries=entries, paragraphs=paragraphs)
         params = urllib.parse.urlencode(query)
-        path = f'{route}/?{params}'
+        path = f'{route}?{params}'
         res = client.get(path, follow_redirects=True)
         json = res.json
 
