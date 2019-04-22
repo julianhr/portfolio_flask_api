@@ -47,8 +47,7 @@ def email():
             'error_payload': errors
         }), 400
     except Exception as error:
-        print('testing error', dir(error))
         return jsonify({
             'error_type': 'generic',
-            'error_payload': '',
+            'error_payload': error,
         }), 400
