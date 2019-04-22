@@ -1,5 +1,5 @@
 import os
-from flask import Blueprint, jsonify, request, abort, Response
+from flask import Blueprint, jsonify, request, abort, Response, escape
 from marshmallow import ValidationError
 from itsdangerous import TimedJSONWebSignatureSerializer
 import boto3
@@ -33,10 +33,10 @@ def email():
     try:
         data = EmailSchema().load(request.get_json())
         kwargs = ses_send_email_kwargs(
-            reply_to=data['email'],
+            reply_to=escape(data['email']),
             email_to=os.environ['CONTACT_EMAIL_TO'],
-            subject=data['subject'],
-            message=data['message'],
+            subject=escape(data['subject']),
+            message=escape(data['message']),
         )
         ses.send_email(**kwargs)
         return '', 204
