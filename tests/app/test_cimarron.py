@@ -1,5 +1,6 @@
 import pytest
 import os
+from flask import escape
 from freezegun import freeze_time
 from faker import Faker
 from itsdangerous import TimedJSONWebSignatureSerializer
@@ -129,3 +130,19 @@ class TestEmail:
             assert resp.status_code == 400
             assert json['error_type'] == 'ValidationError'
             assert 'error_payload' in json
+
+
+    def test_user_text_is_escaped(self, client, route, csrf_token):
+        with self.Stubber(self.ses) as stubber:
+            json_raw = dict(
+                csrf_token=csrf_token,
+                email=TestEmail.CONTACT_EMAIL_FROM,
+                name="<script>alert('very bad stuff')</script>",
+                subject="<script>alert('very bad stuff')</script>",
+                message="<script>alert('really really very bad stuff')</script>",
+            )
+            json_escaped = { k: escape(v) for k, v in json_raw.items() }
+
+            self.decorate_stubber(stubber, json_escaped)
+            resp = client.post(route, json=json_raw)
+            assert resp.status_code == 204

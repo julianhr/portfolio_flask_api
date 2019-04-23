@@ -1,12 +1,13 @@
 import os
 import pytest
 import random
+import time
 from faker import Faker
 from string import ascii_letters
 from collections import namedtuple
 from freezegun import freeze_time
 from itsdangerous import TimedJSONWebSignatureSerializer
-from marshmallow import ValidationError
+from marshmallow import ValidationError, pprint
 
 from utils.cimarron_email import verify_token, EmailSchema
 
@@ -77,16 +78,22 @@ class TestVerifyToken:
 
 class TestEmailSchema:
 
-    @pytest.fixture
-    def json_payload(self):
+    def csrf_token(self, datetime:str):
         ten_minutes = 60 * 10
-        serializer = TimedJSONWebSignatureSerializer(
-            os.environ['SECRET_KEY'],
-            expires_in=ten_minutes
-        )
-        token = serializer.dumps('testing text').decode('utf-8')
+
+        print('test time', datetime)
+        with freeze_time(datetime):
+            serializer = TimedJSONWebSignatureSerializer(
+                os.environ['SECRET_KEY'],
+                expires_in=ten_minutes
+            )
+
+            return serializer.dumps('testing text').decode('utf-8')
+
+
+    def json_payload(self, datetime:str):
         return {
-            'csrf_token': token,
+            'csrf_token': self.csrf_token(datetime),
             'email': 'julian@email.com',
             'name': 'Julian',
             'subject': 'test subject',
@@ -94,106 +101,110 @@ class TestEmailSchema:
         }
 
 
-    def test_all_fields_are_valid(self, json_payload):
-        assert EmailSchema().load(json_payload)
+    def test_all_fields_are_valid(self):
+        datetime = '2019-11-11'
+
+        with freeze_time(datetime):
+            json = self.json_payload(datetime)
+            assert EmailSchema().load(json)
 
 
-    def test_csrf_token_is_invalid(self, json_payload):
-        token = None
-
-        with freeze_time('2019-11-11'):
-            ten_minutes = 60 * 10
-            serializer = TimedJSONWebSignatureSerializer(
-                os.environ['SECRET_KEY'],
-                expires_in=ten_minutes
-            )
-            token = serializer.dumps('testing text').decode('utf-8')
-        
-        json_payload['csrf_token'] = token
+    def test_csrf_token_is_invalid(self):
+        datetime = '2019-11-11'
+        json = self.json_payload(datetime)
+        json['csrf_token'] = self.csrf_token(datetime)
 
         with freeze_time('2019-11-11 00:11'):
             with pytest.raises(ValidationError):
-                EmailSchema().load(json_payload)
+                EmailSchema().load(json)
 
 
-    def test_email_validity(self, json_payload):
-        json_payload['email'] = 'valid@somemail.com'
-        assert EmailSchema().load(json_payload)
+    @freeze_time('2019-11-11')
+    def test_email_validity(self):
+        json = self.json_payload('2019-11-11')
+        json['email'] = 'valid@somemail.com'
+        assert EmailSchema().load(json)
 
         # invalid email
         with pytest.raises(ValidationError) as invalid:
-            json_payload['email'] = 'invalid@email'
-            EmailSchema().load(json_payload)
+            json['email'] = 'invalid@email'
+            EmailSchema().load(json)
         assert invalid.value.messages['email'] == ['Not a valid email address.']
 
         # too short
         with pytest.raises(ValidationError) as invalid:
-            json_payload['email'] = 'a@o.com'
-            EmailSchema().load(json_payload)
+            json['email'] = 'a@o.com'
+            EmailSchema().load(json)
         assert invalid.value.messages['email'] == ['Invalid value.']
 
         # too long
         with pytest.raises(ValidationError) as invalid:
             username = ''.join(random.choices(ascii_letters, k=40))
-            json_payload['email'] =  f'{username}@emails.com'
-            EmailSchema().load(json_payload)
+            json['email'] =  f'{username}@emails.com'
+            EmailSchema().load(json)
         assert invalid.value.messages['email'] == ['Invalid value.']
 
 
-    def test_name_validity(self, json_payload):
-        json_payload['name'] = fake.name()
-        assert EmailSchema().load(json_payload)
+    @freeze_time('2019-11-11')
+    def test_name_validity(self):
+        json = self.json_payload('2019-11-11')
+        json['name'] = fake.name()
+        assert EmailSchema().load(json)
 
         # too short
         with pytest.raises(ValidationError) as invalid:
-            json_payload['name'] = 'j'
-            EmailSchema().load(json_payload)
+            json['name'] = 'j'
+            EmailSchema().load(json)
         assert invalid.value.messages['name'] == ['Invalid value.']
 
         # too long
         with pytest.raises(ValidationError) as invalid:
             max_len = 50
             fake_name = ''.join(random.choices(ascii_letters + ' ', k=max_len + 1))
-            json_payload['name'] = fake_name
-            EmailSchema().load(json_payload)
+            json['name'] = fake_name
+            EmailSchema().load(json)
         assert invalid.value.messages['name'] == ['Invalid value.']
 
 
-    def test_subject_validity(self, json_payload):
-        json_payload['subject'] = 'Hello'
-        assert EmailSchema().load(json_payload)
+    @freeze_time('2019-11-11')
+    def test_subject_validity(self):
+        json = self.json_payload('2019-11-11')
+        json['subject'] = 'Hello'
+        assert EmailSchema().load(json)
 
         # too short
         with pytest.raises(ValidationError) as invalid:
-            json_payload['subject'] = 'j'
-            EmailSchema().load(json_payload)
+            json['subject'] = 'j'
+            EmailSchema().load(json)
         assert invalid.value.messages['subject'] == ['Invalid value.']
 
         # too long
         with pytest.raises(ValidationError) as invalid:
             max_len = 120
             fake_subject = ''.join(random.choices(ascii_letters + ' ', k=max_len + 1))
-            json_payload['subject'] = fake_subject
-            EmailSchema().load(json_payload)
+            json['subject'] = fake_subject
+            EmailSchema().load(json)
         assert invalid.value.messages['subject'] == ['Invalid value.']
 
 
-    def test_message_validity(self, json_payload):
-        json_payload['message'] = fake.sentence(nb_words=100)
-        assert EmailSchema().load(json_payload)
+    @freeze_time('2019-11-11')
+    def test_message_validity(self):
+        json = self.json_payload('2019-11-11')
+        json['message'] = fake.sentence(nb_words=100)
+        assert EmailSchema().load(json)
 
         # too short
         with pytest.raises(ValidationError) as invalid:
             min_len = 50
             fake_message = ''.join(random.choices(ascii_letters + ' ', k=min_len - 1))
-            json_payload['message'] = 'j'
-            EmailSchema().load(json_payload)
+            json['message'] = 'j'
+            EmailSchema().load(json)
         assert invalid.value.messages['message'] == ['Invalid value.']
 
         # too long
         with pytest.raises(ValidationError) as invalid:
             max_len = 10_000
             fake_message = ''.join(random.choices(ascii_letters + '     ', k=max_len + 1))
-            json_payload['message'] = fake_message
-            EmailSchema().load(json_payload)
+            json['message'] = fake_message
+            EmailSchema().load(json)
         assert invalid.value.messages['message'] == ['Invalid value.']
