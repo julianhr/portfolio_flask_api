@@ -1,12 +1,30 @@
 #!flask/bin/python
+import os
 import json
+import logging
+import watchtower
 from flask import Flask, jsonify
 from flask_cors import CORS
+
 from app.flaskrun import flaskrun
 
 
 app = Flask(__name__)
 application = app
+
+
+# env variables
+app.config.from_mapping(
+    SECRET_KEY=os.environ['SECRET_KEY']
+)
+
+
+# logging
+logging.basicConfig(level=logging.INFO)
+wh = watchtower.CloudWatchLogHandler()
+app.logger.addHandler(wh)
+logging.getLogger("werkzeug").addHandler(wh)
+log = app.logger
 
 
 # CORS
