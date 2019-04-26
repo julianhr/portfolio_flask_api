@@ -19,7 +19,7 @@ class TestVerifyToken:
     def setup_method(self):
         from unittest.mock import MagicMock
         mock = MagicMock()
-        mock.patch('os.environ', return_value=dict(SECRET_KEY='testing_key'))
+        mock.patch('os.environ', new=dict(SECRET_KEY='testing_key'))
 
     @freeze_time('2019-11-11 00:00')
     def test_verifies_valid_token(self):

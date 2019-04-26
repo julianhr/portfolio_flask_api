@@ -1,8 +1,8 @@
 import os
+import boto3
 from flask import Blueprint, jsonify, request, abort, Response, escape
 from marshmallow import ValidationError
 from itsdangerous import TimedJSONWebSignatureSerializer
-import boto3
 
 from utils import clamp_param_num
 from utils.aws import ses_send_email_kwargs

@@ -4,7 +4,6 @@ from flask import escape
 from freezegun import freeze_time
 from faker import Faker
 from itsdangerous import TimedJSONWebSignatureSerializer
-from unittest.mock import MagicMock, Mock
 
 
 fake = Faker()
@@ -73,7 +72,7 @@ class TestEmail:
             CONTACT_EMAIL_FROM=TestEmail.CONTACT_EMAIL_FROM,
             CONTACT_EMAIL_TO=TestEmail.CONTACT_EMAIL_TO,
         )
-        mocker.patch('os.environ', mock_return)
+        mocker.patch('os.environ', new=mock_return)
 
 
     @pytest.fixture

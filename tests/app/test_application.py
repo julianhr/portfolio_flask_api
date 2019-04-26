@@ -7,7 +7,7 @@ class TestCorsPolicy:
     host_dev = 'http://localhost'
     host_prod = 'https://www.cimarron.me'
 
-    def test_cors_dev_re(self, client):
+    def test_cors_dev_re(self):
         from app.application import cors_origin_dev_re
         assert bool(re.search(cors_origin_dev_re, self.host_dev))
         assert bool(re.search(cors_origin_dev_re, f'{self.host_dev}/'))
@@ -18,7 +18,7 @@ class TestCorsPolicy:
         assert bool(re.search(cors_origin_dev_re, 'https://any')) == False
 
 
-    def test_cors_prod_re(self, client):
+    def test_cors_prod_re(self):
         from app.application import cors_origin_prod_re
         assert bool(re.search(cors_origin_prod_re, self.host_prod))
         assert bool(re.search(cors_origin_prod_re, f'{self.host_prod}/'))
