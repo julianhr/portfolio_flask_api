@@ -15,16 +15,22 @@ application = app
 
 # env variables
 app.config.from_mapping(
-    SECRET_KEY=os.environ['SECRET_KEY']
+    SECRET_KEY=os.environ['SECRET_KEY'],
 )
 
 
 # logging
 logging.basicConfig(level=logging.INFO)
-wh = watchtower.CloudWatchLogHandler()
-app.logger.addHandler(wh)
-logging.getLogger("werkzeug").addHandler(wh)
 log = app.logger
+
+# adds watchtower handle only if aws credentials are found
+# prevents tests from failing during CI build
+try:
+    wh = watchtower.CloudWatchLogHandler()
+    app.logger.addHandler(wh)
+    logging.getLogger("werkzeug").addHandler(wh)
+except:
+    pass
 
 
 # CORS
