@@ -1,6 +1,8 @@
 -i https://pypi.org/simple
+blinker==1.4
 boto3==1.9.137
 botocore==1.12.137
+certifi==2019.3.9
 click==7.0
 docutils==0.14
 faker==1.0.5
@@ -13,6 +15,7 @@ markupsafe==1.1.1
 marshmallow==3.0.0rc5
 python-dateutil==2.8.0 ; python_version >= '2.7'
 s3transfer==0.2.0
+sentry-sdk[flask]==0.7.12
 six==1.12.0
 text-unidecode==1.2
 urllib3==1.24.2 ; python_version >= '3.4'
