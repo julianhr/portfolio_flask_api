@@ -1,10 +1,27 @@
 import os
+import sys
 import pytest
+import importlib
 
 
-@pytest.fixture
-def client():
+# Pytest env variables
+os.environ['TESTING'] = 'True'
+
+
+@pytest.fixture(scope='function')
+def client(monkeypatch):
     from app.application import app
-    app.config['TESTING'] = True
     client = app.test_client()
-    yield client
+    return client
+
+
+@pytest.fixture(scope='function')
+def get_client(monkeypatch):
+    def _client(env):
+        monkeypatch.setenv('FLASK_ENV', env)
+        importlib.reload(sys.modules['app.application'])
+        from app.application import app
+        client = app.test_client()
+        return client
+
+    return _client
