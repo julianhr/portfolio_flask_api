@@ -7,7 +7,7 @@ from string import ascii_letters
 from collections import namedtuple
 from freezegun import freeze_time
 from itsdangerous import TimedJSONWebSignatureSerializer
-from marshmallow import ValidationError, pprint
+from marshmallow import ValidationError
 
 from utils.cimarron_email import verify_token, EmailSchema
 
@@ -81,7 +81,6 @@ class TestEmailSchema:
     def csrf_token(self, datetime:str):
         ten_minutes = 60 * 10
 
-        print('test time', datetime)
         with freeze_time(datetime):
             serializer = TimedJSONWebSignatureSerializer(
                 os.environ['SECRET_KEY'],

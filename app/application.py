@@ -3,19 +3,34 @@ import os
 import json
 import logging
 import watchtower
+import sentry_sdk
+import subprocess
+from sentry_sdk.integrations.flask import FlaskIntegration
 from flask import Flask, jsonify
 from flask_cors import CORS
 
 from app.flaskrun import flaskrun
 
 
+# initialize Sentry
+git_hash = subprocess.check_output(['git', 'rev-parse', '--short', 'HEAD']).strip()
+is_sentry_enabled = os.environ.get('FLASK_ENV') == 'production' and not os.environ.get('TESTING')
+sentry_sdk.init(
+    dsn=os.environ['SENTRY_SDK_DSN'] if is_sentry_enabled else None,
+    integrations=[FlaskIntegration()],
+    release=git_hash,
+    debug=os.environ.get('FLASK_ENV') != 'production',
+    environment=os.environ.get('FLASK_ENV'),
+)
+
+
+# setup app and env variables
 app = Flask(__name__)
 application = app
 
-
-# env variables
 app.config.from_mapping(
     SECRET_KEY=os.environ['SECRET_KEY'],
+    TESTING=os.environ.get('TESTING'),
 )
 
 
@@ -23,7 +38,7 @@ app.config.from_mapping(
 logging.basicConfig(level=logging.INFO)
 log = app.logger
 
-# adds watchtower handle only if aws credentials are found
+# adds watchtower handle only if AWS credentials found
 # prevents tests from failing during CI build
 try:
     wh = watchtower.CloudWatchLogHandler()

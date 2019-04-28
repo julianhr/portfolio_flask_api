@@ -56,6 +56,7 @@ class TestEmail:
     CONTACT_EMAIL_FROM = 'from@test.com'
     CONTACT_EMAIL_TO = 'to@test.com'
 
+
     def setup_method(self):
         from app.cimarron import ses
         from utils.aws import ses_send_email_kwargs
@@ -66,13 +67,10 @@ class TestEmail:
 
 
     @pytest.fixture
-    def mock_env(self, mocker):
-        mock_return = dict(
-            SECRET_KEY=TestEmail.SECRET_KEY,
-            CONTACT_EMAIL_FROM=TestEmail.CONTACT_EMAIL_FROM,
-            CONTACT_EMAIL_TO=TestEmail.CONTACT_EMAIL_TO,
-        )
-        mocker.patch('os.environ', new=mock_return)
+    def mock_env(self, monkeypatch):
+        monkeypatch.setenv('SECRET_KEY', TestEmail.SECRET_KEY)
+        monkeypatch.setenv('CONTACT_EMAIL_FROM', TestEmail.CONTACT_EMAIL_FROM)
+        monkeypatch.setenv('CONTACT_EMAIL_TO', TestEmail.CONTACT_EMAIL_TO)
 
 
     @pytest.fixture
@@ -121,14 +119,32 @@ class TestEmail:
 
 
     @freeze_time('2019-11-12') # 1 day after TIME_FROZEN
-    def test_invalid_csrf_token(self, client, route, data):
+    def test_invalid_csrf_token(self, get_client, route, data, mocker):
         with self.Stubber(self.ses) as stubber:
             self.decorate_stubber(stubber, data)
+            mocker.patch('app.cimarron.capture_exception')
+            client = get_client('production')
+            from app.cimarron import capture_exception
             resp = client.post(route, json=data)
             json = resp.get_json()
+
             assert resp.status_code == 400
             assert json['error_type'] == 'ValidationError'
             assert 'error_payload' in json
+            capture_exception.assert_called_once()
+
+    @freeze_time('2019-11-11')
+    def test_generic_exception_caught(self, client, route, data, mocker):
+        mocker.patch('app.cimarron.EmailSchema', side_effect=Exception('testing error'))
+        mocker.patch('app.cimarron.capture_exception')
+        from app.cimarron import capture_exception
+        resp = client.post(route, json=data)
+        json = resp.get_json()
+
+        assert resp.status_code == 400
+        assert json['error_type'] == 'generic'
+        assert 'error_payload' in json
+        capture_exception.assert_called_once()
 
 
     def test_user_text_is_escaped(self, client, route, csrf_token):

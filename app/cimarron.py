@@ -1,8 +1,9 @@
-import os
 import boto3
+import os
 from flask import Blueprint, jsonify, request, abort, Response, escape
-from marshmallow import ValidationError
 from itsdangerous import TimedJSONWebSignatureSerializer
+from marshmallow import ValidationError
+from sentry_sdk import capture_exception
 
 from utils import clamp_param_num
 from utils.aws import ses_send_email_kwargs
@@ -41,13 +42,15 @@ def email():
         ses.send_email(**kwargs)
         return '', 204
     except ValidationError as error:
+        capture_exception(error)
         errors = { k: l[0] for k, l in error.messages.items() }
         return jsonify({
             'error_type': 'ValidationError',
             'error_payload': errors
         }), 400
     except Exception as error:
-        return jsonify({
-            'error_type': 'generic',
-            'error_payload': error,
-        }), 400
+        capture_exception(error)
+        return jsonify(
+            error_type='generic',
+            error_payload=str(error),
+        ), 400

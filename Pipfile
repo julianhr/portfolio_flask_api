@@ -11,6 +11,7 @@ marshmallow = "*"
 itsdangerous = "*"
 boto3 = "*"
 watchtower = "*"
+sentry-sdk = {extras = ["flask"],version = "*"}
 
 [requires]
 python_version = "3.6"
