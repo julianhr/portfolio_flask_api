@@ -14,7 +14,6 @@ from app.flaskrun import flaskrun
 
 is_production = os.environ.get('FLASK_ENV') == 'production' and not os.environ.get('TESTING')
 
-
 # initialize Sentry
 git_hash = None
 

@@ -5,8 +5,9 @@ import pytest
 import importlib
 
 
-def test_is_production(monkeypatch):
+def test_is_production(monkeypatch, mocker):
     from app.application import is_production # make sys.modules aware of module
+    mocker.patch('app.application.sentry_sdk.init')
 
     monkeypatch.setenv('FLASK_ENV', 'production')
     monkeypatch.delenv('TESTING')

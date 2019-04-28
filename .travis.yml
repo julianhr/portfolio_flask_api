@@ -1,7 +1,6 @@
 language: python
 python: 3.6
 before_install:
-  - export FLASK_ENV=production
   - export AWS_DEFAULT_REGION=us-west-2
 install:
   - pip install -r requirements.txt
