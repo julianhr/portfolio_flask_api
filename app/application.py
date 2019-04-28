@@ -1,25 +1,35 @@
 #!flask/bin/python
-import os
 import json
 import logging
-import watchtower
+import os
 import sentry_sdk
 import subprocess
-from sentry_sdk.integrations.flask import FlaskIntegration
+import watchtower
 from flask import Flask, jsonify
 from flask_cors import CORS
+from sentry_sdk.integrations.flask import FlaskIntegration
 
 from app.flaskrun import flaskrun
 
 
+is_production = os.environ.get('FLASK_ENV') == 'production' and not os.environ.get('TESTING')
+
+
 # initialize Sentry
-git_hash = subprocess.check_output(['git', 'rev-parse', '--short', 'HEAD']).strip()
-is_sentry_enabled = os.environ.get('FLASK_ENV') == 'production' and not os.environ.get('TESTING')
+git_hash = None
+
+if is_production:
+    with open(os.path.abspath('./version.txt')) as fh:
+        git_hash = fh.readline().strip()
+else:
+    bstr_git_hash = subprocess.check_output(['git', 'rev-parse', '--short', 'HEAD'])
+    git_hash = str(bstr_git_hash.strip(), 'utf-8')
+
 sentry_sdk.init(
-    dsn=os.environ['SENTRY_SDK_DSN'] if is_sentry_enabled else None,
+    dsn=is_production and os.environ['SENTRY_SDK_DSN'],
     integrations=[FlaskIntegration()],
     release=git_hash,
-    debug=os.environ.get('FLASK_ENV') != 'production',
+    debug=(not is_production),
     environment=os.environ.get('FLASK_ENV'),
 )
 
@@ -30,7 +40,7 @@ application = app
 
 app.config.from_mapping(
     SECRET_KEY=os.environ['SECRET_KEY'],
-    TESTING=os.environ.get('TESTING'),
+    TESTING=os.environ.get('TESTING', False),
 )
 
 

@@ -6,6 +6,7 @@ import importlib
 
 # Pytest env variables
 os.environ['TESTING'] = 'True'
+os.environ['FLASK_ENV'] = 'production'
 
 
 @pytest.fixture(scope='function')

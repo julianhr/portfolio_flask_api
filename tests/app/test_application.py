@@ -5,6 +5,81 @@ import pytest
 import importlib
 
 
+def test_is_production(monkeypatch):
+    from app.application import is_production # make sys.modules aware of module
+
+    monkeypatch.setenv('FLASK_ENV', 'production')
+    monkeypatch.delenv('TESTING')
+    importlib.reload(sys.modules['app.application'])
+    from app.application import is_production
+    assert is_production
+
+    monkeypatch.setenv('FLASK_ENV', 'production')
+    monkeypatch.setenv('TESTING', 'True')
+    importlib.reload(sys.modules['app.application'])
+    from app.application import is_production
+    assert not is_production
+
+    monkeypatch.setenv('FLASK_ENV', 'develpment')
+    monkeypatch.delenv('TESTING')
+    importlib.reload(sys.modules['app.application'])
+    from app.application import is_production
+    assert not is_production
+
+
+class TestSentryInitialization:
+
+    @pytest.fixture
+    def set_env(self, monkeypatch, mocker):
+        def fixture(flask_env, sentry_dsn, is_testing):
+            from app.application import is_production # make sys.modules aware of module
+            monkeypatch.setenv('FLASK_ENV', flask_env)
+            monkeypatch.setenv('SENTRY_SDK_DSN', sentry_dsn)
+
+            if is_testing:
+                monkeypatch.setenv('TESTING', 'True')
+            else:
+                monkeypatch.delenv('TESTING')
+
+            mocker.patch('app.application.sentry_sdk.init')
+            importlib.reload(sys.modules['app.application'])
+
+        return fixture
+
+
+    def test_sentry_initialization_production(self, set_env):
+        set_env('production', 'test_sentry_dsn', False)
+        expected_args = dict(
+            dsn='test_sentry_dsn',
+            debug=False,
+            environment='production',
+            release='$Format:%H$',
+        )
+
+        from app.application import sentry_sdk
+        _, kwargs = sentry_sdk.init.call_args
+        args = { k: v for k, v in kwargs.items() if k in expected_args }
+        assert sentry_sdk.init.called_once()
+        assert args == expected_args
+
+
+    def test_sentry_initialization_development(self, set_env):
+        set_env('develpment', 'test_sentry_dsn', True)
+        expected_args = dict(
+            dsn=False,
+            debug=True,
+            environment='develpment',
+        )
+
+        from re import match as re_match
+        from app.application import sentry_sdk
+        _, kwargs = sentry_sdk.init.call_args
+        args = { k: v for k, v in kwargs.items() if k in expected_args }
+        assert sentry_sdk.init.called_once()
+        assert args == expected_args
+        assert bool(re_match(r'^[a-z0-9]{7}$', kwargs['release']))
+
+
 class TestCorsPolicy:
 
     HOST_DEV = 'http://localhost'
