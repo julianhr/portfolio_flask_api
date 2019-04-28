@@ -54,7 +54,7 @@ class TestSentryInitialization:
             dsn='test_sentry_dsn',
             debug=False,
             environment='production',
-            release='$Format:%H$',
+            release='$Format:%h$',
         )
 
         from app.application import sentry_sdk
