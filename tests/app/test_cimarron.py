@@ -133,6 +133,7 @@ class TestEmail:
             assert 'error_payload' in json
             capture_exception.assert_called_once()
 
+
     @freeze_time('2019-11-11')
     def test_generic_exception_caught(self, client, route, data, mocker):
         mocker.patch('app.cimarron.EmailSchema', side_effect=Exception('testing error'))

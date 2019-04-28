@@ -1,0 +1,2 @@
+*.py diff=python
+version.txt export-subst

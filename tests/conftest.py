@@ -6,6 +6,8 @@ import importlib
 
 # Pytest env variables
 os.environ['TESTING'] = 'True'
+os.environ['FLASK_ENV'] = 'production'
+os.environ['SENTRY_SDK_DSN'] = 'mock_sentry_dsn'
 
 
 @pytest.fixture(scope='function')
