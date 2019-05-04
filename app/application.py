@@ -9,10 +9,11 @@ from flask import Flask, jsonify
 from flask_cors import CORS
 from sentry_sdk.integrations.flask import FlaskIntegration
 
-from app.flaskrun import flaskrun
+from instance.flaskrun import flaskrun
+from instance.config import app_config
 
 
-is_production = os.environ.get('FLASK_ENV') == 'production' and not os.environ.get('TESTING')
+is_production = os.environ.get('APP_ENV') == 'production'
 
 # initialize Sentry
 git_hash = None
@@ -25,11 +26,11 @@ else:
     git_hash = str(bstr_git_hash.strip(), 'utf-8')
 
 sentry_sdk.init(
-    dsn=is_production and os.environ['SENTRY_SDK_DSN'],
+    dsn=is_production and os.environ.get('SENTRY_SDK_DSN'),
     integrations=[FlaskIntegration()],
     release=git_hash,
-    debug=(not is_production),
-    environment=os.environ.get('FLASK_ENV'),
+    debug=(os.environ['APP_ENV'] == 'development'),
+    environment=os.environ['APP_ENV'],
 )
 
 
@@ -37,10 +38,7 @@ sentry_sdk.init(
 app = Flask(__name__)
 application = app
 
-app.config.from_mapping(
-    SECRET_KEY=os.environ['SECRET_KEY'],
-    TESTING=os.environ.get('TESTING', False),
-)
+app.config.from_object(app_config[os.environ['APP_ENV']])
 
 
 # logging
@@ -61,7 +59,7 @@ except:
 cors_origin_prod_re = r'https://(www\.cimarron\.me|.+unruffled-stallman-9cfd92\.netlify\.com)'
 cors_origin_dev_re = r'http://localhost.?'
 
-if app.config.get('ENV') == 'production':
+if is_production:
     origin = cors_origin_prod_re
 else:
     origin = cors_origin_dev_re

@@ -6,7 +6,6 @@ __pycache__/
 build/
 dist/
 htmlcov/
-instance/
 playground/
 venv/
 

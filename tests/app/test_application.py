@@ -10,19 +10,19 @@ def test_is_production(monkeypatch, mocker):
     mocker.patch('app.application.sentry_sdk.init')
 
     monkeypatch.setenv('FLASK_ENV', 'production')
-    monkeypatch.delenv('TESTING')
+    monkeypatch.setenv('APP_ENV', 'production')
     importlib.reload(sys.modules['app.application'])
     from app.application import is_production
     assert is_production
 
     monkeypatch.setenv('FLASK_ENV', 'production')
-    monkeypatch.setenv('TESTING', 'True')
+    monkeypatch.setenv('APP_ENV', 'development')
     importlib.reload(sys.modules['app.application'])
     from app.application import is_production
     assert not is_production
 
-    monkeypatch.setenv('FLASK_ENV', 'develpment')
-    monkeypatch.delenv('TESTING')
+    monkeypatch.setenv('FLASK_ENV', 'production')
+    monkeypatch.setenv('APP_ENV', 'testing')
     importlib.reload(sys.modules['app.application'])
     from app.application import is_production
     assert not is_production
@@ -32,16 +32,10 @@ class TestSentryInitialization:
 
     @pytest.fixture
     def set_env(self, monkeypatch, mocker):
-        def fixture(flask_env, sentry_dsn, is_testing):
+        def fixture(app_env, sentry_dsn, is_testing):
             from app.application import is_production # make sys.modules aware of module
-            monkeypatch.setenv('FLASK_ENV', flask_env)
+            monkeypatch.setenv('APP_ENV', app_env)
             monkeypatch.setenv('SENTRY_SDK_DSN', sentry_dsn)
-
-            if is_testing:
-                monkeypatch.setenv('TESTING', 'True')
-            else:
-                monkeypatch.delenv('TESTING')
-
             mocker.patch('app.application.sentry_sdk.init')
             importlib.reload(sys.modules['app.application'])
 
@@ -65,11 +59,11 @@ class TestSentryInitialization:
 
 
     def test_sentry_initialization_development(self, set_env):
-        set_env('develpment', 'test_sentry_dsn', True)
+        set_env('development', 'test_sentry_dsn', True)
         expected_args = dict(
             dsn=False,
             debug=True,
-            environment='develpment',
+            environment='development',
         )
 
         from re import match as re_match
@@ -110,7 +104,7 @@ class TestCorsPolicy:
         assert bool(re.search(cors_origin_prod_re, 'https://any.com')) == False
 
 
-    def test_dev_request(self, get_client, monkeypatch):
+    def test_dev_request(self, get_client):
         client = get_client('development')
         res = client.get('/', headers={ 'Origin': self.HOST_DEV })
         cors_header = 'Access-Control-Allow-Origin'
@@ -118,7 +112,7 @@ class TestCorsPolicy:
         assert res.headers[cors_header] == self.HOST_DEV
 
 
-    def test_prod_request(self, get_client, monkeypatch):
+    def test_prod_request(self, get_client, monkeypatch, mocker):
         client = get_client('production')
         res = client.get('/', headers={ 'Origin': self.HOST_PROD })
         cors_header = 'Access-Control-Allow-Origin'
