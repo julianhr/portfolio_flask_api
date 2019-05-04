@@ -2,6 +2,8 @@ language: python
 python: 3.6
 before_install:
   - export AWS_DEFAULT_REGION=us-west-2
+  - export APP_ENV=testing
+  - export SENTRY_SDK_DSN='https://false@sentry.io/222'
 install:
   - pip install -r requirements.txt
   - pip install -r requirements-dev.txt

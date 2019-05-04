@@ -5,9 +5,7 @@ import importlib
 
 
 # Pytest env variables
-os.environ['TESTING'] = 'True'
-os.environ['FLASK_ENV'] = 'production'
-os.environ['SENTRY_SDK_DSN'] = 'mock_sentry_dsn'
+os.environ['APP_ENV'] = 'testing'
 
 
 @pytest.fixture(scope='function')
@@ -21,6 +19,7 @@ def client(monkeypatch):
 def get_client(monkeypatch):
     def _client(env):
         monkeypatch.setenv('FLASK_ENV', env)
+        monkeypatch.setenv('APP_ENV', env)
         importlib.reload(sys.modules['app.application'])
         from app.application import app
         client = app.test_client()
